@@ -1,0 +1,58 @@
+/.vs/LicensePlateRecognition/v15/.suo
+/.vs/LicensePlateRecognition/v15/Browse.VC.db
+/.vs/LicensePlateRecognition/v15/Browse.VC.opendb
+/.vs/LicensePlateRecognition/v15/ipch/AutoPCH/3187cb2baebd95fe/PREPROCESSIMAGE.ipch
+/.vs/LicensePlateRecognition/v15/ipch/AutoPCH/47c050aa32b52a9/LICENSEPLATERECOGNITIONDLG.ipch
+/.vs/LicensePlateRecognition/v15/ipch/AutoPCH/ac2d6d1daff6a853/OPENCV.ipch
+/.vs/LicensePlateRecognition/v15/ipch/AutoPCH/d3057a7527deda7d/PREPROCESSIMAGE.ipch
+/.vs/LicensePlateRecognition/v15/ipch/c0dc194d59c316dd.ipch
+/.vs/LicensePlateRecognition/v15/ipch/f665f1e39a09a68d.ipch
+/.vs/slnx.sqlite
+/data/image/20150601_052114_001_서울55가9871_서울55가9871_.jpg
+/data/image/20150601_082808_001_서울45머7775_서울45머7775_.jpg
+/data/image/20150601_084917_001_서울56라1609_서울56라1609_.jpg
+/data/image/20150601_093206_001_서울53무8456_서울53무8456_.jpg
+/data/image/20150601_094135_001_서울44마6290_서울44마6290_.jpg
+/data/image/640x480.jpg
+/data/image/f - Copy (2).txt
+/data/image/f - Copy (3).txt
+/data/image/f - Copy (4).txt
+/data/image/f - Copy (5).txt
+/data/image/f - Copy (6).txt
+/data/image/f - Copy.txt
+/data/image/f.txt
+/data/image/홍대교표_블루.jpg
+/include/opencv_world411.lib
+/include/opencv_world411d.lib
+/log/build_log.log
+/log/ConsoleAdapter.obj
+/log/Ini.obj
+/log/LicenseP.01B32CFA.tlog/CL.command.1.tlog
+/log/LicenseP.01B32CFA.tlog/CL.read.1.tlog
+/log/LicenseP.01B32CFA.tlog/CL.write.1.tlog
+/log/LicenseP.01B32CFA.tlog/LicensePlateRecognition.lastbuildstate
+/log/LicenseP.01B32CFA.tlog/LicensePlateRecognition.write.1u.tlog
+/log/LicenseP.01B32CFA.tlog/link.command.1.tlog
+/log/LicenseP.01B32CFA.tlog/link.delete.1.tlog
+/log/LicenseP.01B32CFA.tlog/link.read.1.tlog
+/log/LicenseP.01B32CFA.tlog/link.write.1.tlog
+/log/LicenseP.01B32CFA.tlog/rc.command.1.tlog
+/log/LicenseP.01B32CFA.tlog/rc.read.1.tlog
+/log/LicenseP.01B32CFA.tlog/rc.write.1.tlog
+/log/LicensePlateRecognition.Build.CppClean.log
+/log/LicensePlateRecognition.obj
+/log/LicensePlateRecognition.pch
+/log/LicensePlateRecognition.res
+/log/LicensePlateRecognitionDlg.obj
+/log/PreprocessImage.obj
+/log/stdafx.obj
+/log/vc141.idb
+/log/vc141.pdb
+/x64/LicensePlateRecognition.exe
+/x64/LicensePlateRecognition.iobj
+/x64/LicensePlateRecognition.ipdb
+/x64/LicensePlateRecognition.pdb
+/x64/lnk{B6BF2BEF-E0B7-4B63-BC85-6C94990D9749}.tmp
+/x64/opencv_videoio_ffmpeg411_64.dll
+/x64/opencv_world411.dll
+/x64/opencv_world411d.dll
