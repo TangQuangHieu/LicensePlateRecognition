@@ -42,6 +42,9 @@
     <ClInclude Include="..\include\PreprocessImage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\yolo_v2_class.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LicensePlateRecognition.cpp">

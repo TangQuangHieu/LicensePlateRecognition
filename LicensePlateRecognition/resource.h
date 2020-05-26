@@ -7,6 +7,7 @@
 #define IDS_ABOUTBOX                    101
 #define IDD_LICENSEPLATERECOGNITION_DIALOG 102
 #define IDR_MAINFRAME                   128
+#define IDR_ACCELERATOR1                130
 #define IDC_BUTTON_OPEN                 1001
 #define IDC_BUTTON_LOAD_IMAGE           1002
 #define IDC_BUTTON_LOAD_RESULT          1003
@@ -32,14 +33,16 @@
 #define IDC_LIST_IMAGE                  1036
 #define IDC_EDIT_IMAGE_PATH             1037
 #define IDC_PICTURE_CONTROL             1038
+#define IDC_SLIDER2                     1040
+#define ID_ACCELERATOR32771             32771
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        130
-#define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1039
+#define _APS_NEXT_RESOURCE_VALUE        131
+#define _APS_NEXT_COMMAND_VALUE         32776
+#define _APS_NEXT_CONTROL_VALUE         1041
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -4,12 +4,13 @@
 #pragma once
 #include "Ini.h"
 #include "PreprocessImage.h"
+#include "Detector.h"
 
 //Enum for choosing state
-enum state_choose{ONE_STATE, TWO_STATE};
+//enum state_choose{ONE_STATE, TWO_STATE};
 
 //Enum for chosing yolo list
-enum yolo_list { YOLOV2, YOLOV3, YOLOV3_MOD, YOLOV4 };
+//enum yolo_list { YOLOV2, YOLOV3, YOLOV3_MOD, YOLOV4 };
 
 
 // CLicensePlateRecognitionDlg dialog
@@ -42,7 +43,7 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnBnClickedButtonOpen();
+	//afx_msg void OnBnClickedButtonOpen();
 	//use ini file for this program to read configuration file
 	mg::CIni m_hIni;
 
@@ -87,9 +88,13 @@ public:
 	void LoadImageListPath();
 	CStatic m_hImageControl;
 	cv::Mat  m_hImage;
+	cv::Mat m_hPreprocessImage;//preprocessed image
 
 	//Use for drawing m_hImage on m_hImageControl
-	void OnDrawObject();
+	void OnDrawObject(cv::Mat& mDrawImage);
+
+	//initial or reinitial all scroll bar
+	void OnInitialScrollBars();
 private:
 
 	//function used for initilize properly list box, if the path of text in list box is too lenghthy, we make the horizontal scrool bar to that text
@@ -101,4 +106,11 @@ public:
 	afx_msg void OnLbnDblclkListImage();
 	// Show status and result information
 	CEdit m_hStatusResultWindow;
+	//afx_msg void OnBnClickedButtonLoadImage();
+	afx_msg void OnButtonLoadImage();
+	afx_msg void OnButtonOpen();
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+
+	afx_msg void OnBnClickedCheckHistogramEqual();
+	afx_msg void OnBnClickedCheckBlurImage();
 };

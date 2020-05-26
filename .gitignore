@@ -56,3 +56,11 @@
 /x64/opencv_videoio_ffmpeg411_64.dll
 /x64/opencv_world411.dll
 /x64/opencv_world411d.dll
+/.vs/LicensePlateRecognition/v15/ipch/60f158af7e9d9435.ipch
+/.vs/LicensePlateRecognition/v15/ipch/AutoPCH/58db247a00fe8f46/LICENSEPLATERECOGNITION.ipch
+/.vs/LicensePlateRecognition/v15/ipch/AutoPCH/5e83f55e8863b8d1/PREPROCESSIMAGE.ipch
+/.vs/LicensePlateRecognition/v15/ipch/AutoPCH/8ddeb77c0fe27b38/DETECTOR.ipch
+/.vs/LicensePlateRecognition/v15/ipch/AutoPCH/b4f783a830125ed5/DETECTOR.ipch
+/.vs/LicensePlateRecognition/v15/ipch/AutoPCH/be973d000ce9fbeb/DETECTOR.ipch
+/.vs/LicensePlateRecognition/v15/ipch/AutoPCH/ddebb83d29437809/LICENSEPLATERECOGNITIONDLG.ipch
+/.vs/LicensePlateRecognition/v15/ipch/AutoPCH/f2b8a97b01dac4e6/DETECTOR.ipch
