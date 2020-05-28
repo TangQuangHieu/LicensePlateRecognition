@@ -117,6 +117,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\include\ConsoleAdapter.h" />
+    <ClInclude Include="..\include\Detector.h" />
     <ClInclude Include="..\include\Ini.h" />
     <ClInclude Include="..\include\PreprocessImage.h" />
     <ClInclude Include="..\include\yolo_v2_class.hpp" />
@@ -128,6 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\ConsoleAdapter.cpp" />
+    <ClCompile Include="..\include\Detector.cpp" />
     <ClCompile Include="..\include\Ini.cpp" />
     <ClCompile Include="..\include\PreprocessImage.cpp" />
     <ClCompile Include="LicensePlateRecognition.cpp" />

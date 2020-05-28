@@ -8,11 +8,12 @@ enum state_choose { ONE_STATE, TWO_STATE };
 enum yolo_list { YOLOV2, YOLOV3, YOLOV3_MOD};
 typedef struct _DetectorInformation
 {
-	std::string sDetectorName;//Name of detector
-	std::string sDetectorPath;//Path to detector folder
-	std::string sNamePath;//path to data
-	std::string sConfigPath;//path to config
-	std::string sWeightPath;//path to weight
+	std::string					sDetectorName;		//Name of detector
+	std::string					sDetectorPath;		//Path to detector folder
+	std::string					sNamePath;			//path to data
+	std::string					sConfigPath;		//path to config
+	std::string					sWeightPath;		//path to weight
+	std::vector<std::string>	sClassNames;		//name of all classes of detector
 } DetectorInformation;
 //Class use to wrap the actual yolo class, useful for 2 detectors stages
 class YoloDetector 
@@ -24,14 +25,24 @@ public:
 
 	//initial actual detector, the inputs are yDetectorType and 
 	void InitialDetector(Detector* pDetector, yolo_list& yDetectorType, DetectorInformation& dDetectorInformation, int iWhatStage=0);
+	//Read Name From name file
+	void ReadNameFromFile(std::string& sNameFilePath, std::vector<std::string>& sClassName);
+
+	//Use to summary all kind of detect base on the 1 stage or 2 stage
+	void Detect(cv::Mat& mImage);
+
 	//Use for detect 1 stage
-	void SingleDetect(cv::Mat& mImage);
+	void SingleDetect(Detector* Detector, cv::Mat & mImage, std::vector<bbox_t>& bResultBoxes);
+	void DetectOnlyStage1(cv::Mat& mImage);
 	
 	//Use for detect 2 stages
 	void CasCadeDetect(cv::Mat& mImage);
+	void DoNMSAllClasses(std::vector<bbox_t > & bResultBoxes);
 
+	//Show the result in the console
+	void ShowResultInConsole(std::vector<bbox_t > & bResultBoxes, std::vector<std::string>& sClassNames);
 	//get box result
-	std::vector<std::vector<bbox_t>>& GetResultBoxes() const;
+	std::array<std::vector<bbox_t>, 2> GetResultBoxes() const;
 
 	//Draw into image
 	void DrawImage(cv::Mat& mImage);
@@ -43,7 +54,6 @@ private:
 	std::vector<yolo_list> m_yYoloListTypes;//yolo list for each stage
 	std::string m_sDetectorFolderPath;//store path to detectors folder
 	DetectorInformation	m_dDetectorInformation[2];//each detector information
-	Detector* m_pDetectors[2];//2 detector
-	std::vector<bbox_t> m_bResultBoxes[2];
-	
+	std::array<Detector*,2> m_pDetectors;//2 detector
+	std::array<std::vector<bbox_t>,2> m_bResultBoxes;	
 };

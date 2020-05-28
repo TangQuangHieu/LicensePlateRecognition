@@ -90,6 +90,10 @@ public:
 	cv::Mat  m_hImage;
 	cv::Mat m_hPreprocessImage;//preprocessed image
 
+	//Detector
+	YoloDetector* m_pDetector = NULL;
+	CString m_sDetectorPath;//Path to detector folder, one upper folder of stage1 and stage2 folder, initial in OninitDialog()
+
 	//Use for drawing m_hImage on m_hImageControl
 	void OnDrawObject(cv::Mat& mDrawImage);
 
@@ -113,4 +117,5 @@ public:
 
 	afx_msg void OnBnClickedCheckHistogramEqual();
 	afx_msg void OnBnClickedCheckBlurImage();
+	afx_msg void OnBnClickedButtonProcess();
 };

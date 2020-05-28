@@ -98,6 +98,7 @@ BEGIN_MESSAGE_MAP(CLicensePlateRecognitionDlg, CDialogEx)
 	ON_WM_HSCROLL()
 	ON_BN_CLICKED(IDC_CHECK_HISTOGRAM_EQUAL, &CLicensePlateRecognitionDlg::OnBnClickedCheckHistogramEqual)
 	ON_BN_CLICKED(IDC_CHECK_BLUR_IMAGE, &CLicensePlateRecognitionDlg::OnBnClickedCheckBlurImage)
+	ON_BN_CLICKED(IDC_BUTTON_PROCESS, &CLicensePlateRecognitionDlg::OnBnClickedButtonProcess)
 END_MESSAGE_MAP()
 
 
@@ -150,6 +151,9 @@ BOOL CLicensePlateRecognitionDlg::OnInitDialog()
 
 	OnInitialScrollBars();
 	
+	//Initial the detector folder for program
+	m_sDetectorPath = m_hIni.GetString("Globals", "DetectorPath", "..\\..\\detectors");
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -502,4 +506,40 @@ void CLicensePlateRecognitionDlg::OnBnClickedCheckBlurImage()
 	}
 	else m_hImage.copyTo(m_hPreprocessImage);
 	OnDrawObject(m_hPreprocessImage);
+}
+
+
+/* Click Process button
+ * Do detect the image in m_hPreprocessImage
+ * take the current configure from choose state ( 1 stage or 2 stages
+ * configure network from state 1 and state 2
+*/
+void CLicensePlateRecognitionDlg::OnBnClickedButtonProcess()
+{
+	// TODO: Add your control notification handler code here
+	int iSelIndex = m_hChooseState.GetCurSel();
+	CString cstrChooseState;
+	if (iSelIndex != LB_ERR)
+	{
+		m_hChooseState.GetLBText(iSelIndex, cstrChooseState);
+		for (auto& _mChooseStatePair : m_MapForChooseState)
+			if (cstrChooseState.Compare(_mChooseStatePair.second) == 0)
+			{
+				//Choose type of each stage
+				std::vector<yolo_list> yYoloListTypes(2);
+				CString cstrChooseTypes[2];
+				m_hState1DetectType.GetLBText(m_hState1DetectType.GetCurSel(), cstrChooseTypes[0]);
+				m_hState2DetectType.GetLBText(m_hState2DetectType.GetCurSel(), cstrChooseTypes[1]);
+				for (auto &_StageTypePair : m_MapForChooseDetectorType)
+				{
+					if (cstrChooseTypes[0].Compare(_StageTypePair.second) == 0) yYoloListTypes[0] = _StageTypePair.first;
+					if(cstrChooseTypes[1].Compare(_StageTypePair.second) == 0) yYoloListTypes[1] = _StageTypePair.first;
+				}
+
+				//YoloDetector(const state_choose& sYoloStages, const std::vector<yolo_list>& yYoloListTypes, const std::string& sDetectorFolderPath)
+				m_pDetector = new YoloDetector(_mChooseStatePair.first, yYoloListTypes, std::string(m_sDetectorPath));
+				m_pDetector->Detect(m_hPreprocessImage);
+			}
+		
+	}
 }

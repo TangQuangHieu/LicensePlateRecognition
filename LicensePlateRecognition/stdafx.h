@@ -52,11 +52,20 @@
 #endif
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <map>
 #include <filesystem>
+#include <string>
+#include <iomanip>
+#include <array>
 #ifndef _DEBUG
 #pragma comment(lib,"opencv_world411.lib")
 #else
 #pragma comment(lib,"opencv_world411d.lib")
+#endif
+#ifdef _DEBUG
+#pragma comment(lib, "yolo_cpp_dllD.lib")
+#else
+#pragma comment(lib, "yolo_cpp_dll.lib")
 #endif

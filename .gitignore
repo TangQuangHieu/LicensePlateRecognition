@@ -64,3 +64,8 @@
 /.vs/LicensePlateRecognition/v15/ipch/AutoPCH/be973d000ce9fbeb/DETECTOR.ipch
 /.vs/LicensePlateRecognition/v15/ipch/AutoPCH/ddebb83d29437809/LICENSEPLATERECOGNITIONDLG.ipch
 /.vs/LicensePlateRecognition/v15/ipch/AutoPCH/f2b8a97b01dac4e6/DETECTOR.ipch
+/.vs/LicensePlateRecognition/v15/ipch/AutoPCH/f7d5f2e0b98554c4/DETECTOR.ipch
+/.vs/LicensePlateRecognition/v15/ipch/AutoPCH/ff4c8f6b42a26e55/DETECTOR.ipch
+/log/Detector.obj
+/include/yolo_cpp_dll.lib
+/include/yolo_cpp_dllD.lib

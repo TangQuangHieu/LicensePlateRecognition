@@ -45,6 +45,9 @@
     <ClInclude Include="..\include\yolo_v2_class.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Detector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LicensePlateRecognition.cpp">
@@ -63,6 +66,9 @@
       <Filter>Include</Filter>
     </ClCompile>
     <ClCompile Include="..\include\ConsoleAdapter.cpp">
+      <Filter>Include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\Detector.cpp">
       <Filter>Include</Filter>
     </ClCompile>
   </ItemGroup>
