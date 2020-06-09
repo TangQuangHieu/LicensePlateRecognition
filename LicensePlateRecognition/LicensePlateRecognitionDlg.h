@@ -11,7 +11,34 @@
 
 //Enum for chosing yolo list
 //enum yolo_list { YOLOV2, YOLOV3, YOLOV3_MOD, YOLOV4 };
-
+//
+//const std::vector<std::wstring> wstrKoreanObjectNames = {
+//L"WHITE LONG", 
+//L"WHITE SHORT", 
+//L"YELLOW SHORT", 
+//L"YELLOW LONG", 
+//L"GREEN OLD", 
+//L"GREEN NEW", L"AMBASS", L"CONSTR", L"INTER", L"ARMY",
+//L"0", L"1", L"2", L"3", L"4", L"5", L"6", L"7", L"8", L"9", L"",
+//L"바", L"사", L"아", L"자", L"하", L"허", L"호", L"배", L"", L"", L"가", L"나", L"다", L"라", L"마", L"거", L"너",
+//L"더", L"러", L"머", L"버", L"서", L"어", L"저", L"고", L"노", L"도", L"로", L"모", L"보", L"소", L"오", L"조",
+//L"구", L"누", L"두", L"루", L"무", L"부", L"수", L"우", L"주", L"육", L"해", L"공", L"국", L"합", L"", L"", L"",
+//L"서울", L"부산", L"대구", L"인천", L"광주", L"대전", L"울산", L"세정", L"", L"", L"경기", L"강원", L"충북",
+//L"충남", L"전북", L"전남", L"경북", L"경남", L"제주"};
+//
+//const std::vector<std::wstring> wstrKoreanObjectNames1Stage = {
+//L"Plate",
+//L"Normal",
+//L"Old",
+//L"2004",
+//L"2005",
+//L"Special", L"2006 Local", L"CONSTR", L"INTER", L"Ambass",
+//L"0", L"1", L"2", L"3", L"4", L"5", L"6", L"7", L"8", L"9", 
+//L"바", L"사", L"아", L"자", L"하", L"허", L"호", L"배",  L"가", L"나", L"다", L"라", L"마", L"거", L"너",
+//L"더", L"러", L"머", L"버", L"서", L"어", L"저", L"고", L"노", L"도", L"로", L"모", L"보", L"소", L"오", L"조",
+//L"구", L"누", L"두", L"루", L"무", L"부", L"수", L"우", L"주", L"육", L"해", L"공", L"국", L"합", 
+//L"서울", L"부산", L"대구", L"인천", L"광주", L"대전", L"울산", L"세정", L"경기", L"강원", L"충북",
+//L"충남", L"전북", L"전남", L"경북", L"경남", L"제주" };
 
 // CLicensePlateRecognitionDlg dialog
 class CLicensePlateRecognitionDlg : public CDialogEx
@@ -93,6 +120,10 @@ public:
 	//Detector
 	YoloDetector* m_pDetector = NULL;
 	CString m_sDetectorPath;//Path to detector folder, one upper folder of stage1 and stage2 folder, initial in OninitDialog()
+	std::vector<std::string> m_strObjectNames;//Contains object names
+	cv::RNG m_rngRandomColorGenerator;	//Random generator, generate color of object's bbox for drawing
+	//Initial color lookup table for YoloDetector class
+	void OnInitYoloResultColor();
 
 	//Use for drawing m_hImage on m_hImageControl
 	void OnDrawObject(cv::Mat& mDrawImage);
@@ -104,12 +135,19 @@ private:
 	//function used for initilize properly list box, if the path of text in list box is too lenghthy, we make the horizontal scrool bar to that text
 	void OnReDrawHorizontalScroolBar();
 
+	void UpdateStatusResultWindow();
+	int AppendToLogAndScroll(CString str, COLORREF color, UINT iFontSize =0);
+	int GetNumVisibleLines(CRichEditCtrl* pCtrl);
+	void PutFPSOnImage(cv::Mat& mImage);
+	void RunVideo();
+	void InitKoreanObjectNames();
 public:
+	cv::Mat m_hLoloImage;//image logo
 	// Hold the folder containing images
 	CEdit m_hImageDir;
 	afx_msg void OnLbnDblclkListImage();
-	// Show status and result information
-	CEdit m_hStatusResultWindow;
+	//// Show status and result information
+	//CEdit m_hStatusResultWindow;
 	//afx_msg void OnBnClickedButtonLoadImage();
 	afx_msg void OnButtonLoadImage();
 	afx_msg void OnButtonOpen();
@@ -118,4 +156,12 @@ public:
 	afx_msg void OnBnClickedCheckHistogramEqual();
 	afx_msg void OnBnClickedCheckBlurImage();
 	afx_msg void OnBnClickedButtonProcess();
+	CRichEditCtrl m_hStatusWindow;
+	afx_msg void OnBnClickedButtonLoadVideo();
+	cv::VideoCapture m_hVideoCapture;//object used for loading video
+	cv::VideoWriter m_hVideoWriter;//
+	bool m_bIsLoadVideo;//TRUE when video loaded, and FALSE when we stop loading video
+	CString m_hVideoPath;//The path to video
+	afx_msg void OnBnClickedButtonClear();
+	std::vector<std::wstring> m_cstrKoreanObjectNames;
 };

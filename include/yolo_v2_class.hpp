@@ -107,8 +107,8 @@ public:
         if(mat.data == NULL)
             throw std::runtime_error("Image is empty");
         auto image_ptr = mat_to_image_resize(mat);
-        return detect_resized(*image_ptr, mat.cols, mat.rows, thresh, use_mean);
-    }
+		return detect_resized(*image_ptr, mat.cols, mat.rows, thresh, use_mean);
+	}
 
     std::shared_ptr<image_t> mat_to_image_resize(cv::Mat mat) const
     {

@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "Detector.h"
-
+#include "Define.h"
 /* Initial the YoloDetector with the nmber of stage
  * The type of detector in each stage
  * And the path to detection folder
  * After that, base on these options, we will initilize 
  * actual detector inside this class
 */
+
 YoloDetector::YoloDetector(const state_choose& sYoloStages, const std::vector<yolo_list>& yYoloListTypes, const std::string& sDetectorFolderPath):
 	m_sYoloStages(sYoloStages), m_yYoloListTypes(yYoloListTypes), m_sDetectorFolderPath(sDetectorFolderPath)
 {
@@ -29,7 +30,7 @@ YoloDetector::YoloDetector(const state_choose& sYoloStages, const std::vector<yo
  *	std::string sConfigPath;//path to config (name.cfg)
  *	std::string sWeightPath;//path to weight ( name.weights)
 */
-void YoloDetector::InitialDetector(Detector* pDetector, yolo_list& yDetectorType, DetectorInformation& dDetectorInformation, int iWhatStage)
+void YoloDetector::InitialDetector(Detector*& pDetector, yolo_list& yDetectorType, DetectorInformation& dDetectorInformation, int iWhatStage)
 {
 	if (iWhatStage == 0)
 	{
@@ -90,8 +91,9 @@ void YoloDetector::ReadNameFromFile(std::string & sNameFilePath, std::vector<std
  * Detect base on 1 stage or 2 stages
  * It will automatically choose DetectOnluStage1 or CasCadeDetect
 */
-void YoloDetector::Detect(cv::Mat & mImage)
+void YoloDetector::Detect(cv::Mat mImage)
 {
+	
 	switch (m_sYoloStages)
 	{
 	case state_choose::ONE_STATE:
@@ -112,13 +114,26 @@ void YoloDetector::Detect(cv::Mat & mImage)
 /* Detector only stage 1
  * Use Single detector and detector 0 and m_bResultBoxes to get the result boxes
 */
-void YoloDetector::DetectOnlyStage1(cv::Mat& mImage)
+void YoloDetector::DetectOnlyStage1(cv::Mat mImage)
 {
+#ifdef _CALCULATE_COMPUTATION_TIME
+	//SYSTEMTIME current, start;
+	//::GetLocalTime(&start);
+	LARGE_INTEGER begin, end, freq;
+	QueryPerformanceFrequency(&freq);
+	QueryPerformanceCounter(&begin);
+#endif
 	SingleDetect(m_pDetectors[0], mImage, m_bResultBoxes[0]);
 	//MNS through all classes, 1 license plate just have 1 character and 1 province( if it has province)
 	DoNMSAllClasses(m_bResultBoxes[0]);
-	ShowResultInConsole(m_bResultBoxes[0], m_dDetectorInformation[0].sClassNames);
-
+	std::vector<int> iSortedIds = ShortDigitInLP();
+	ShowResultInConsole(m_bResultBoxes[0], m_dDetectorInformation[0].sClassNames, iSortedIds);
+	DrawImage(mImage, m_bResultBoxes[0], m_dDetectorInformation[0].sClassNames);
+#ifdef _CALCULATE_COMPUTATION_TIME
+	QueryPerformanceCounter(&end);
+	m_dDetectionTime = 1000. *(double)(end.QuadPart - begin.QuadPart) / ((double)freq.QuadPart);
+	printf("Detection time:%3.2f ms\n", m_dDetectionTime);
+#endif
 }
 
 //detect only one single detector
@@ -127,7 +142,7 @@ void YoloDetector::DetectOnlyStage1(cv::Mat& mImage)
  * mImage:		Input Image
  * bResulBoxes: Output result box
 */
-void YoloDetector::SingleDetect(Detector* Detector, cv::Mat & mImage, std::vector<bbox_t>& bResultBoxes)
+void YoloDetector::SingleDetect(Detector*& Detector, cv::Mat mImage, std::vector<bbox_t>& bResultBoxes)
 {
 	bResultBoxes = Detector->detect(mImage);
 }
@@ -135,8 +150,15 @@ void YoloDetector::SingleDetect(Detector* Detector, cv::Mat & mImage, std::vecto
 
 
 //Detect 2 detectors
-void YoloDetector::CasCadeDetect(cv::Mat & mImage)
+void YoloDetector::CasCadeDetect(cv::Mat mImage)
 {
+#ifdef _CALCULATE_COMPUTATION_TIME
+	//SYSTEMTIME current, start;
+	//::GetLocalTime(&start);
+	LARGE_INTEGER begin, end, freq;
+	QueryPerformanceFrequency(&freq);
+	QueryPerformanceCounter(&begin);
+#endif
 	static int iDeltaX = 15;
 	static int iDeltaY = 15;
 	SingleDetect(m_pDetectors[0], mImage, m_bResultBoxes[0]);
@@ -154,7 +176,7 @@ void YoloDetector::CasCadeDetect(cv::Mat & mImage)
 			_itBox = m_bResultBoxes[0].erase(_itBox);
 		}
 	}
-
+	ShowResultInConsole(m_bResultBoxes[0], m_dDetectorInformation[0].sClassNames);
 	//Check whether the license plate position is in the image and crop it
 	cv::Mat mCroppedImg;
 	if (m_bResultBoxes[0].size() == 1)
@@ -179,8 +201,22 @@ void YoloDetector::CasCadeDetect(cv::Mat & mImage)
 
 		//MNS through all classes, 1 license plate just have 1 character and 1 province( if it has province)
 		DoNMSAllClasses(m_bResultBoxes[1]);
-		ShowResultInConsole(m_bResultBoxes[1], m_dDetectorInformation[1].sClassNames);
+		//Offset the result box to the correct position in the original image
+		//by add the coordinate of the box to the offset of the license plate
+		for (auto& _bBox : m_bResultBoxes[1])
+		{
+			_bBox.x += m_bResultBoxes[0][0].x;
+			_bBox.y += m_bResultBoxes[0][0].y;
+		}
+		std::vector<int> iSortedIds = ShortDigitInLP();
+		ShowResultInConsole(m_bResultBoxes[1], m_dDetectorInformation[1].sClassNames, iSortedIds);
+		DrawImage(mImage, m_bResultBoxes[1], m_dDetectorInformation[1].sClassNames);
 	}
+#ifdef _CALCULATE_COMPUTATION_TIME
+	QueryPerformanceCounter(&end);
+	m_dDetectionTime = 1000. *(double)(end.QuadPart - begin.QuadPart) / ((double)freq.QuadPart);
+	printf("Detection time:%3.2f ms\n", m_dDetectionTime);
+#endif
 }
 
 /* Use to do non maximum suppression for all classes in license plate
@@ -209,6 +245,7 @@ void YoloDetector::DoNMSAllClasses(std::vector<bbox_t>& bResultBoxes)
 				itBox = bResultBoxes.erase(itBox);
 			}
 		}
+		else ++itBox;
 	}
 	//step2: NMS on province; province class id from 70
 	float fMaxProvinceScore = 0;
@@ -228,6 +265,7 @@ void YoloDetector::DoNMSAllClasses(std::vector<bbox_t>& bResultBoxes)
 				itBox = bResultBoxes.erase(itBox);
 			}
 		}
+		else ++itBox;
 	}
 }
 
@@ -235,15 +273,187 @@ void YoloDetector::DoNMSAllClasses(std::vector<bbox_t>& bResultBoxes)
  * oStream is input stream ( can be file or out stream ...)
  * bResultBoxes is the vector of result
 */
-void YoloDetector::ShowResultInConsole(std::vector<bbox_t>& bResultBoxes, std::vector<std::string>& sClassNames)
+void YoloDetector::ShowResultInConsole(std::vector<bbox_t>& bResultBoxes, std::vector<std::string>& sClassNames, std::vector<int> iSortedIds)
 {
-	for (auto& bBox : bResultBoxes)
-	{
-		std::cout <<std::setw(10)<<"Name: "<< sClassNames[bBox.obj_id]<<"; x:" << bBox.x << "; y:" << bBox.y << "; w:" << bBox.w << "; h:" << bBox.h << std::endl;
-	}
+	if(iSortedIds.size()>0)
+		for (auto& iSortedIndex : iSortedIds)
+		{
+			auto& bBox = bResultBoxes[iSortedIndex];
+			std::cout <<std::setw(10)<<"Name: "<< sClassNames[bBox.obj_id]<<"; x:" << bBox.x << "; y:" << bBox.y << "; w:" << bBox.w << "; h:" << bBox.h << std::endl;
+		}
+	else 
+		for (auto& _bBox : bResultBoxes)
+		{
+			std::cout << std::setw(10) << "Name: " << sClassNames[_bBox.obj_id] << "; x:" << _bBox.x << "; y:" << _bBox.y << "; w:" << _bBox.w << "; h:" << _bBox.h << std::endl;
+		}
 }
 
 std::array<std::vector<bbox_t>,2> YoloDetector::GetResultBoxes() const 
 {
 	return m_bResultBoxes;
+}
+
+
+/* Draw function, draw result into image
+ * Random color to make it colorful
+ * mImage is the input image
+ * bBoxes is the bBoxes vector
+ * sClassNames is the class name list
+*/
+void YoloDetector::DrawImage(cv::Mat & mImage, std::vector<bbox_t>& bBoxes,
+	std::vector<std::string>& sClassNames)
+{
+	//color and inverse color to draw name and background
+	cv::Scalar sColor;
+	cv::Scalar sInvColor;
+	std::string strObjectName;
+	cv::Size textSize;
+	int FontFace = cv::FONT_HERSHEY_COMPLEX_SMALL;
+	double FontScale = 2;
+	int  baseline;
+	for (auto& _bBox : bBoxes)
+	{
+		//Initial color
+		sColor = m_sRandomColorLookupTable[_bBox.obj_id];
+		sInvColor = cv::Scalar(255, 255, 255) - sColor;
+
+		//calculate the text size
+		strObjectName = sClassNames[_bBox.obj_id];
+		textSize = cv::getTextSize(strObjectName, FontFace, FontScale, 2, &baseline);
+
+		//Make a retangle to carry the text inside it, the retangle will have the 
+		//width and height same as the object name
+		cv::Point pTopLeftOfBbox(_bBox.x, _bBox.y- textSize.height);
+		cv::Rect rTextBackground = cv::Rect(pTopLeftOfBbox, cv::Point(pTopLeftOfBbox.x + textSize.width + 4, pTopLeftOfBbox.y + textSize.height - 4));
+		cv::rectangle(mImage, rTextBackground, sColor, -1);
+
+		//put character in image
+		cv::Point pTopLeftofText(_bBox.x, _bBox.y);//Bottom left
+		cv::putText(mImage, strObjectName, pTopLeftofText, FontFace, FontScale, sInvColor, 2);
+
+		//Draw bbox around object
+		cv::Rect rBbox(_bBox.x, _bBox.y, _bBox.w, _bBox.h);
+		cv::rectangle(mImage, rBbox, sColor, 2);
+	}
+}
+
+/* Short 2 lines detection in license plate by angle
+ * by order of location in license plate
+ * In license plate type, the yellow short  ( classid=2),
+ * Green old(classid=4) and green new(classid=5) have 2 lines
+*/
+std::vector<int> YoloDetector::ShortDigitInLP()
+{
+	std::vector<int> iIndexOfSortedResultBoxes;
+	iIndexOfSortedResultBoxes.clear();
+	switch (m_sYoloStages)
+	{
+	case state_choose::ONE_STATE:
+	{
+		//Find license style
+		for (auto _itbBox = m_bResultBoxes[0].begin(); _itbBox < m_bResultBoxes[0].end(); ++_itbBox)
+			if ((*_itbBox).obj_id < 10)
+			{
+				m_bResultBoxes[1].push_back((*_itbBox));
+				m_bResultBoxes[0].erase(_itbBox);
+				break;
+			}
+		iIndexOfSortedResultBoxes = SortDigit(m_bResultBoxes[0]);
+		break;
+	}
+	case state_choose::TWO_STATE:
+	{
+		//Find license style
+		iIndexOfSortedResultBoxes = SortDigit(m_bResultBoxes[1]);
+		break;
+	}
+	default: 
+		break;
+	}
+	return iIndexOfSortedResultBoxes;
+}
+
+/* Get Detection info by its stage
+*/
+DetectorInformation YoloDetector::GetDetectionInformation(int iStage) const
+{
+	// TODO: insert return statement here
+	if(iStage<2 && iStage>=0)
+		return m_dDetectorInformation[iStage];
+	else return DetectorInformation();
+}
+
+/* Get num of stage in Yolo Detector
+ * return ONE_STAGE or TWO_STAGE
+*/
+state_choose YoloDetector::GetStageNum() const
+{
+	// TODO: insert return statement here
+	return m_sYoloStages;
+}
+
+std::vector<std::string> YoloDetector::GetObjectNames(int iStageNum) const
+{
+	if (iStageNum >= 0 && iStageNum < 2)
+		return m_dDetectorInformation[iStageNum].sClassNames;
+	else
+		return std::vector<std::string>();
+}
+
+/* Get detection time
+*/
+double YoloDetector::GetDetectionTime() const
+{
+	return m_dDetectionTime;
+}
+
+std::vector<int> YoloDetector::GetSortedIDs() const
+{
+	return m_iSortedIds;
+}
+
+/* Helper function for ShortDigitInLP()
+ * Sort digit in box vector by its position
+*/
+std::vector<int> YoloDetector::SortDigit(std::vector<bbox_t>& bBoxes)
+{
+	//Short by x first, we use insertion sort
+	//std::vector<int> iIndexSortedByX;
+	std::vector<int> iXSortedValues;
+	m_iSortedIds.clear();
+	iXSortedValues.clear();
+	for (int iIndex = 0; iIndex < bBoxes.size(); ++iIndex)
+	{
+		auto itUpperBound = std::upper_bound(iXSortedValues.begin(), iXSortedValues.end(), bBoxes[iIndex].x);
+		int iDistanceFromBegin2InsertPoint = std::distance(iXSortedValues.begin(), itUpperBound);
+		iXSortedValues.insert(itUpperBound, bBoxes[iIndex].x);
+		m_iSortedIds.insert(m_iSortedIds.begin() + iDistanceFromBegin2InsertPoint, iIndex);
+	}
+
+	//sorted by y
+	std::vector<int> iIndexSortedByYInSecondLine;
+	iIndexSortedByYInSecondLine.clear();
+	bool bIs2LinesUpper = false;//lower line
+	for (auto _itIndexSortedByX = m_iSortedIds.begin(); _itIndexSortedByX < m_iSortedIds.end() -1;)
+	{
+		int _iPreIndexInbBoxes =  *_itIndexSortedByX;
+		int _iPostIndexInbBoxes = *(_itIndexSortedByX + 1);
+		float atan = (bBoxes[_iPostIndexInbBoxes].y - bBoxes[_iPreIndexInbBoxes].y) /
+			(float)(bBoxes[_iPostIndexInbBoxes].x - bBoxes[_iPreIndexInbBoxes].x);
+		//45 degree has tan = 1 since sin(45)=cos(45)
+		if (abs(atan) > 1.0)
+		{
+			if (atan>0) bIs2LinesUpper = true;
+			iIndexSortedByYInSecondLine.push_back(_iPostIndexInbBoxes);
+			m_iSortedIds.erase(_itIndexSortedByX + 1);
+		}
+		else ++_itIndexSortedByX;
+	}
+	//merge 2 lines.
+	if (iIndexSortedByYInSecondLine.size() > 0)
+		if (bIs2LinesUpper) m_iSortedIds.insert(m_iSortedIds.begin(),
+			iIndexSortedByYInSecondLine.begin(), iIndexSortedByYInSecondLine.end());
+		else m_iSortedIds.insert(m_iSortedIds.end(),
+			iIndexSortedByYInSecondLine.begin(), iIndexSortedByYInSecondLine.end());
+	return m_iSortedIds;
 }

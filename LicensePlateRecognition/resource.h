@@ -27,13 +27,15 @@
 #define IDC_BUTTON_PROCESS              1027
 #define IDC_EDIT_RESULT                 1029
 #define IDC_BUTTON_SAVE_RESULT          1031
+#define IDC_BUTTON_CLEAR                1031
 #define IDC_CHECK_HISTOGRAM_EQUAL       1033
 #define IDC_CHECK_BLUR_IMAGE            1034
 #define IDC_STATIC_STATUS               1035
 #define IDC_LIST_IMAGE                  1036
 #define IDC_EDIT_IMAGE_PATH             1037
 #define IDC_PICTURE_CONTROL             1038
-#define IDC_SLIDER2                     1040
+#define IDC_RICHEDIT_STATUS_WINDOW      1041
+#define IDC_BUTTON_LOAD_VIDEO           1042
 #define ID_ACCELERATOR32771             32771
 
 // Next default values for new objects
@@ -42,7 +44,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32776
-#define _APS_NEXT_CONTROL_VALUE         1041
+#define _APS_NEXT_CONTROL_VALUE         1043
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

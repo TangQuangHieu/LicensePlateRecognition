@@ -59,6 +59,7 @@
 #include <string>
 #include <iomanip>
 #include <array>
+#include <thread>
 #ifndef _DEBUG
 #pragma comment(lib,"opencv_world411.lib")
 #else
