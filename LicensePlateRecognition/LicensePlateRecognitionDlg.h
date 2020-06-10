@@ -126,7 +126,7 @@ public:
 	void OnInitYoloResultColor();
 
 	//Use for drawing m_hImage on m_hImageControl
-	void OnDrawObject(cv::Mat& mDrawImage);
+	void OnDrawObject(cv::Mat& mDrawImage,bool bDisplayText=false);
 
 	//initial or reinitial all scroll bar
 	void OnInitialScrollBars();
@@ -140,7 +140,9 @@ private:
 	int GetNumVisibleLines(CRichEditCtrl* pCtrl);
 	void PutFPSOnImage(cv::Mat& mImage);
 	void RunVideo();
+
 	void InitKoreanObjectNames();
+	void DisplayKoreanLicensePlateOnImage(CImage& Image);
 public:
 	cv::Mat m_hLoloImage;//image logo
 	// Hold the folder containing images

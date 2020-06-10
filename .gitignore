@@ -45,3 +45,12 @@ data/
 /.vs/LicensePlateRecognition/v15/ipch/60f158af7e9d9435.ipch
 /.vs/LicensePlateRecognition/v15/Browse.VC.db
 /.vs/LicensePlateRecognition/v15/Browse.VC.opendb
+/.vs/LicensePlateRecognition/v15/.suo
+/.vs/LicensePlateRecognition/v15/ipch/370614f755e3f315.ipch
+/include/opencv_world420.lib
+/include/opencv_world420d.lib
+/LicensePlateRecognition/LicensePlateRecognition.aps
+/x64/dlls.zip
+/x64/opencv_videoio_ffmpeg420_64.dll
+/x64/opencv_world420.dll
+/x64/opencv_world420d.dll

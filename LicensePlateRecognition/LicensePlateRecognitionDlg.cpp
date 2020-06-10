@@ -12,6 +12,7 @@
 namespace fs = std::filesystem;
 //using namespace cv;
 std::vector<cv::Scalar> YoloDetector::m_sRandomColorLookupTable = { cv::Scalar(0,0,0) };
+int YoloDetector::m_iNumOfGpus = 0;
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -165,7 +166,7 @@ BOOL CLicensePlateRecognitionDlg::OnInitDialog()
 
 	//Initial load video false
 	m_bIsLoadVideo = false;
-
+	YoloDetector::m_iNumOfGpus = m_hIni.GetInt("Globals", "NumOfGpus", 1);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -323,7 +324,7 @@ void CLicensePlateRecognitionDlg::OnInitYoloResultColor()
 	
 }
 //Use for drawing m_hImage on m_hImageControl
-void CLicensePlateRecognitionDlg::OnDrawObject(cv::Mat& mDrawImage)
+void CLicensePlateRecognitionDlg::OnDrawObject(cv::Mat& mDrawImage, bool bDisplayText)
 {
 	if (!mDrawImage.empty())
 	{
@@ -371,6 +372,11 @@ void CLicensePlateRecognitionDlg::OnDrawObject(cv::Mat& mDrawImage)
 			winSize.width, winSize.height,
 			cvImgTmp.data, &bitInfo, DIB_RGB_COLORS, SRCCOPY
 		);
+		
+		//Display license plate into image
+		if(bDisplayText)
+			DisplayKoreanLicensePlateOnImage(*mfcImg);
+
 		//Display mfcImg in MFC window
 		mfcImg->BitBlt(::GetDC(m_hImageControl.m_hWnd), 0, 0);
 		//Release mfcImg
@@ -390,7 +396,7 @@ void CLicensePlateRecognitionDlg::OnInitialScrollBars()
 	m_hRotateImageNumShow.Format("%d",m_hRotateImageSlideBar.GetPos());
 	SetDlgItemText(IDC_EDIT_ROTATE_IMAGE, m_hRotateImageNumShow);
 	//Initilize for lighting slide bar
-	m_hLightingImageSlideBar.SetRange(0, 100, TRUE);
+	m_hLightingImageSlideBar.SetRange(-100, 100, TRUE);
 	m_hLightingImageSlideBar.SetPos(0);
 	m_hLightingImageNumShow.Format("%d", m_hLightingImageSlideBar.GetPos());
 	SetDlgItemText(IDC_SLIDER_LIGHTING_IMAGE, m_hRotateImageNumShow);
@@ -697,6 +703,81 @@ void CLicensePlateRecognitionDlg::InitKoreanObjectNames()
 
 }
 
+/* Hieu Tang 2020-06-10
+ * Display Korean license plate on image
+ * using MFC function
+ * able to display korean character
+*/
+void CLicensePlateRecognitionDlg::DisplayKoreanLicensePlateOnImage(CImage& Image)
+{
+		CString cstrResult;
+		auto& iSortedIds = m_pDetector->GetSortedIDs();
+		auto& bResultBoxes = m_pDetector->GetResultBoxes();
+		
+		RECT rDrawArea;
+		int iScaleRatioY = (int)(Image.GetHeight() / m_hImage.rows);
+		rDrawArea.top = 10; rDrawArea.left = Image.GetWidth() / 2-80; rDrawArea.right = Image.GetWidth() / 2 + 80; rDrawArea.bottom = 90;
+		if (iSortedIds.size() == 0)
+			return;
+		else
+		{
+			//store address of vector of license plate boxes
+			const std::vector<bbox_t>* pBoxArray;
+			//store address of vector of object name
+			if (m_pDetector->GetStageNum() == state_choose::ONE_STATE)
+			{
+				pBoxArray = &bResultBoxes[0];
+				////set draw area lower the license plate
+				//rDrawArea.left =(LONG)bResultBoxes[0][0].x;
+				rDrawArea.top = (LONG)((bResultBoxes[0][0].y + bResultBoxes[0][0].h+10)*iScaleRatioY);
+				//rDrawArea.right = (LONG)(rDrawArea.left + 50);
+				rDrawArea.bottom = (LONG)(rDrawArea.top + 90);
+			}
+				
+			else
+			{
+				pBoxArray = &bResultBoxes[1];
+				////set draw area lower the license plate
+				//rDrawArea.left = (LONG)bResultBoxes[1][0].x;
+				rDrawArea.top = (LONG)((bResultBoxes[1][0].y + bResultBoxes[1][0].h+10)*iScaleRatioY);
+				//rDrawArea.right = (LONG)(rDrawArea.left + 50);
+				rDrawArea.bottom = (LONG)(rDrawArea.top + 90);
+			}
+				
+			/* Drawing section*/
+			//Get draw context object to draw text into image
+			HDC hdc = Image.GetDC();
+			
+			//set draw area
+		
+
+			for (auto& iBoxId : iSortedIds)
+			{
+				CString cstrChar(m_cstrKoreanObjectNames[pBoxArray->at(iBoxId).obj_id].c_str());	
+				cstrResult.Append(cstrChar);
+				
+			}
+			COLORREF colCharacterColor = RGB(YoloDetector::m_sRandomColorLookupTable[pBoxArray->at(iSortedIds[0]).obj_id].val[0],
+				YoloDetector::m_sRandomColorLookupTable[pBoxArray->at(iSortedIds[0]).obj_id].val[1],
+				YoloDetector::m_sRandomColorLookupTable[pBoxArray->at(iSortedIds[0]).obj_id].val[2]);
+			SetTextColor(hdc, colCharacterColor);
+			/* Make font bigger
+			*/
+			// initialize font here (I prefer CreateFontIndirect to CreateFont,
+			// as it's easier to deal with unused params using memset.)
+			LOGFONT logFont;
+			memset(&logFont, 0, sizeof(logFont));
+			logFont.lfHeight = -24; // see PS
+			logFont.lfWeight = FW_BOLD;
+			strcpy(logFont.lfFaceName, "Arial");
+			auto hfont = CreateFontIndirect(&logFont);
+			SelectObject(hdc, hfont);
+			DrawText(hdc, cstrResult, strlen(cstrResult), &rDrawArea, DT_INTERNAL);
+			DeleteObject(hfont);
+		}
+
+}
+
 ////when double click any record in m_hListImagePath, we load image to m_hImageControl as well as show status to result window m_hStatusResultWindow
 void CLicensePlateRecognitionDlg::OnLbnDblclkListImage()
 {
@@ -879,7 +960,7 @@ void CLicensePlateRecognitionDlg::OnBnClickedButtonProcess()
 				if (!m_bIsLoadVideo)
 				{
 					m_pDetector->Detect(m_hPreprocessImage);
-					OnDrawObject(m_hPreprocessImage);
+					OnDrawObject(m_hPreprocessImage,true);
 					//Update result to window console
 					UpdateStatusResultWindow();
 				}

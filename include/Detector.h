@@ -21,6 +21,7 @@ class YoloDetector
 public:
 	//initilize outside class, put in LicensePlateRecognitionDlg 
 	static std::vector<cv::Scalar> m_sRandomColorLookupTable;	//use to store color of each class to draw in image
+	static int m_iNumOfGpus;			//The number of gpu
 	//Construct with number of detector and type of them
 	YoloDetector(const state_choose& sYoloStages, const std::vector<yolo_list>& yYoloListTypes, const std::string& sDetectorFolderPath);
 
@@ -64,6 +65,10 @@ public:
 	double GetDetectionTime() const;
 	//Get sorted id
 	std::vector<int> GetSortedIDs() const;
+	void DoNMSByIouAllClasses(std::vector<bbox_t>& ResultBox, double dNmsThreshold=0.6);
+	double CalcIntersect(bbox_t& box1, bbox_t& box2);
+	double CalcUnion(bbox_t& box1, bbox_t& box2);
+	double CalcIOU(bbox_t& box1, bbox_t& box2);
 private:
 	std::vector<int> SortDigit(std::vector<bbox_t>& bBoxes);
 private:
@@ -75,4 +80,5 @@ private:
 	std::array<std::vector<bbox_t>,2> m_bResultBoxes;
 	double m_dDetectionTime;//calculate detection time
 	std::vector<int> m_iSortedIds;//Sorted ID order of m_bResultBoxes 
+	
 };

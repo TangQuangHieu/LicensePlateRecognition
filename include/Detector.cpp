@@ -68,7 +68,18 @@ void YoloDetector::InitialDetector(Detector*& pDetector, yolo_list& yDetectorTyp
 	dDetectorInformation.sWeightPath = dDetectorInformation.sDetectorPath + dDetectorInformation.sDetectorName + ".weights";
 	ReadNameFromFile(dDetectorInformation.sNamePath, dDetectorInformation.sClassNames);
 	//Detector(std::string cfg_filename, std::string weight_filename, int gpu_id = 0);
-	pDetector = new Detector(dDetectorInformation.sConfigPath, dDetectorInformation.sWeightPath, iWhatStage);
+
+	/*Hieu Tang 2020-06-09
+	 *  the PC has only 1 gpu, the second stage should uses same gpu id0 with the first detector
+	*/
+	if(m_iNumOfGpus>1)
+		pDetector = new Detector(dDetectorInformation.sConfigPath, dDetectorInformation.sWeightPath, iWhatStage);
+	else
+	{
+		int GpuId = 0;
+		pDetector = new Detector(dDetectorInformation.sConfigPath, dDetectorInformation.sWeightPath, GpuId);
+	}
+		
 }
 
 /* Read all names from sNameFilePath and put all into sClassName
@@ -267,6 +278,8 @@ void YoloDetector::DoNMSAllClasses(std::vector<bbox_t>& bResultBoxes)
 		}
 		else ++itBox;
 	}
+	//step3: Do NMS by IOU for the rest of classes
+	DoNMSByIouAllClasses(bResultBoxes);
 }
 
 /* Show the result into a stream
@@ -410,6 +423,86 @@ double YoloDetector::GetDetectionTime() const
 std::vector<int> YoloDetector::GetSortedIDs() const
 {
 	return m_iSortedIds;
+}
+
+/* Hieu Tang 2020-06-10
+ * Helper function for DoNMSAllClasses
+ * This function use IOU to do nms for all classes
+*/
+void YoloDetector::DoNMSByIouAllClasses(std::vector<bbox_t>& ResultBox,double dNmsThreshold)
+{
+	bool bRestartLoop = false;
+	for (auto itCurrentBox = ResultBox.begin(); itCurrentBox < ResultBox.end() - 1;)
+	{
+		bRestartLoop = false;
+		for (auto itNextBox = itCurrentBox + 1; itNextBox < ResultBox.end();)
+		{
+			if (CalcIOU(*itCurrentBox, *itNextBox) > dNmsThreshold)
+			{
+				printf("IOU:%f\n", CalcIOU(*itCurrentBox, *itNextBox));
+				if (itCurrentBox->prob > itNextBox->prob)
+				{
+					itNextBox = ResultBox.erase(itNextBox);
+				}
+				else
+				{
+					itCurrentBox = ResultBox.erase(itCurrentBox);
+					bRestartLoop = true;
+					break;
+				}
+			}
+			else ++itNextBox;
+		}
+		if (!bRestartLoop) ++itCurrentBox;
+	}
+		
+}
+
+/* Hieu Tang 2020-06-10
+ * Calculate intersect between 2 box
+*/
+double YoloDetector::CalcIntersect(bbox_t & box1, bbox_t & box2)
+{
+	double h, w;
+	if (box1.x < box2.x)
+	{
+		if (box1.x + box1.w <= box2.x) return 0;
+		else if (box1.x + box1.w <= box2.x + box2.w) w = box1.x + box1.w - box2.x;
+		else if (box1.x + box1.w > box2.x + box2.w) w = box2.w;
+		else w = 0;
+	}
+	else
+	{
+		if (box2.x + box2.w <= box1.x) return 0;
+		else if (box2.x + box2.w <= box1.x + box1.w) w = box2.x + box2.w - box1.x;
+		else if (box2.x + box2.w > box1.x + box1.w) w = box1.w;
+		else w = 0;
+	}
+	if (box1.y < box2.y)
+	{
+		if (box1.y + box1.h <= box2.y) return 0;
+		else if (box1.y + box1.h <= box2.y + box2.h) h = box1.y + box1.h - box2.y;
+		else if (box1.y + box1.h > box2.y + box2.h) h = box2.h;
+		else h = 0;
+	}
+	else
+	{
+		if (box2.y + box2.h <= box1.y) return 0;
+		else if (box2.y + box2.h <= box1.y + box1.h) h = box2.y + box2.h - box1.y;
+		else if (box2.y + box2.h > box1.y + box1.h) h = box1.h;
+		else h = 0;
+	}
+	return w*h;
+}
+
+double YoloDetector::CalcUnion(bbox_t & box1, bbox_t & box2)
+{
+	return box1.w*box1.h + box2.w*box2.h - CalcIntersect(box1, box2);
+}
+
+double YoloDetector::CalcIOU(bbox_t & box1, bbox_t & box2)
+{
+	return CalcIntersect(box1,box2)/CalcUnion(box1,box2);
 }
 
 /* Helper function for ShortDigitInLP()

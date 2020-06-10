@@ -61,7 +61,7 @@
 #include <array>
 #include <thread>
 #ifndef _DEBUG
-#pragma comment(lib,"opencv_world411.lib")
+#pragma comment(lib,"opencv_world420.lib")
 #else
 #pragma comment(lib,"opencv_world411d.lib")
 #endif
