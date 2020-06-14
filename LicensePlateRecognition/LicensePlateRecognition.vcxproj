@@ -148,6 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\LicensePlateRecognition.ico" />
+    <Image Include="res\Logo_of_hongik_university.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

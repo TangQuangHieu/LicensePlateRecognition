@@ -432,29 +432,33 @@ std::vector<int> YoloDetector::GetSortedIDs() const
 void YoloDetector::DoNMSByIouAllClasses(std::vector<bbox_t>& ResultBox,double dNmsThreshold)
 {
 	bool bRestartLoop = false;
-	for (auto itCurrentBox = ResultBox.begin(); itCurrentBox < ResultBox.end() - 1;)
+	if (ResultBox.size() > 1)
 	{
-		bRestartLoop = false;
-		for (auto itNextBox = itCurrentBox + 1; itNextBox < ResultBox.end();)
+		for (auto itCurrentBox = ResultBox.begin(); itCurrentBox < ResultBox.end() - 1;)
 		{
-			if (CalcIOU(*itCurrentBox, *itNextBox) > dNmsThreshold)
+			bRestartLoop = false;
+			for (auto itNextBox = itCurrentBox + 1; itNextBox < ResultBox.end();)
 			{
-				printf("IOU:%f\n", CalcIOU(*itCurrentBox, *itNextBox));
-				if (itCurrentBox->prob > itNextBox->prob)
+				if (CalcIOU(*itCurrentBox, *itNextBox) > dNmsThreshold)
 				{
-					itNextBox = ResultBox.erase(itNextBox);
+					printf("IOU:%f\n", CalcIOU(*itCurrentBox, *itNextBox));
+					if (itCurrentBox->prob > itNextBox->prob)
+					{
+						itNextBox = ResultBox.erase(itNextBox);
+					}
+					else
+					{
+						itCurrentBox = ResultBox.erase(itCurrentBox);
+						bRestartLoop = true;
+						break;
+					}
 				}
-				else
-				{
-					itCurrentBox = ResultBox.erase(itCurrentBox);
-					bRestartLoop = true;
-					break;
-				}
+				else ++itNextBox;
 			}
-			else ++itNextBox;
+			if (!bRestartLoop) ++itCurrentBox;
 		}
-		if (!bRestartLoop) ++itCurrentBox;
 	}
+	
 		
 }
 

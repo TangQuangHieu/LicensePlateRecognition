@@ -653,7 +653,7 @@ void CLicensePlateRecognitionDlg::RunVideo()
 		m_pDetector->Detect(m_hPreprocessImage);
 		PutFPSOnImage(m_hPreprocessImage);
 		m_hVideoWriter << m_hPreprocessImage;
-		OnDrawObject(m_hPreprocessImage);
+		OnDrawObject(m_hPreprocessImage,true);
 		//Update result to window console
 		UpdateStatusResultWindow();
 		Sleep(0);
@@ -715,7 +715,8 @@ void CLicensePlateRecognitionDlg::DisplayKoreanLicensePlateOnImage(CImage& Image
 		auto& bResultBoxes = m_pDetector->GetResultBoxes();
 		
 		RECT rDrawArea;
-		int iScaleRatioY = (int)(Image.GetHeight() / m_hImage.rows);
+		double dScaleRatioY = (Image.GetHeight() / (double)m_hImage.rows);
+		double dScaleRatioX = (Image.GetWidth() / (double)m_hImage.cols);
 		rDrawArea.top = 10; rDrawArea.left = Image.GetWidth() / 2-80; rDrawArea.right = Image.GetWidth() / 2 + 80; rDrawArea.bottom = 90;
 		if (iSortedIds.size() == 0)
 			return;
@@ -728,9 +729,9 @@ void CLicensePlateRecognitionDlg::DisplayKoreanLicensePlateOnImage(CImage& Image
 			{
 				pBoxArray = &bResultBoxes[0];
 				////set draw area lower the license plate
-				//rDrawArea.left =(LONG)bResultBoxes[0][0].x;
-				rDrawArea.top = (LONG)((bResultBoxes[0][0].y + bResultBoxes[0][0].h+10)*iScaleRatioY);
-				//rDrawArea.right = (LONG)(rDrawArea.left + 50);
+				rDrawArea.left =(LONG)(pBoxArray->at(iSortedIds[0]).x*dScaleRatioX);
+				rDrawArea.top = (LONG)((pBoxArray->at(iSortedIds[0]).y + bResultBoxes[0][0].h+30)*dScaleRatioY);
+				rDrawArea.right = (LONG)(rDrawArea.left + 200);
 				rDrawArea.bottom = (LONG)(rDrawArea.top + 90);
 			}
 				
@@ -738,9 +739,9 @@ void CLicensePlateRecognitionDlg::DisplayKoreanLicensePlateOnImage(CImage& Image
 			{
 				pBoxArray = &bResultBoxes[1];
 				////set draw area lower the license plate
-				//rDrawArea.left = (LONG)bResultBoxes[1][0].x;
-				rDrawArea.top = (LONG)((bResultBoxes[1][0].y + bResultBoxes[1][0].h+10)*iScaleRatioY);
-				//rDrawArea.right = (LONG)(rDrawArea.left + 50);
+				rDrawArea.left = (LONG)(pBoxArray->at(iSortedIds[0]).x*dScaleRatioX);
+				rDrawArea.top = (LONG)((pBoxArray->at(iSortedIds[0]).y + bResultBoxes[1][0].h+30)*dScaleRatioY);
+				rDrawArea.right = (LONG)(rDrawArea.left + 200);
 				rDrawArea.bottom = (LONG)(rDrawArea.top + 90);
 			}
 				

@@ -89,5 +89,8 @@
     <Image Include="res\LicensePlateRecognition.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\Logo_of_hongik_university.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
